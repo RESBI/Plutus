@@ -16,6 +16,8 @@ While running, it prints `CPUID: ADDRESSRATE A/s` to the terminal, where `CPUID`
 
 ## Huge memory required 
 
+It loads the whole database into memory. 
+
 To use the original database, you need more than 20 GiB of RAM. 
 
 # Like This Project? Give It A Star
@@ -37,7 +39,7 @@ sudo apt-get install libgmp3-dev
 # Installation
 
 ```
-git clone https://github.com/Isaacdelly/Plutus.git plutus
+git clone https://github.com/RESBI/Plutus.git plutus
 ```
 ```
 cd plutus && pip3 install -r requirements.txt
