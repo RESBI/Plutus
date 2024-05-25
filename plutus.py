@@ -18,12 +18,12 @@ def generate_private_key():
     return binascii.hexlify(os.urandom(32)).decode('utf-8').upper()
 
 def private_key_to_public_key(private_key, fastecdsa):
-    if fastecdsa:
-        key = keys.get_public_key(int('0x' + private_key, 0), curve.secp256k1)
-        return '04' + (hex(key.x)[2:] + hex(key.y)[2:]).zfill(128)
-    else:
-        pk = PrivateKey().fromString(bytes.fromhex(private_key))
-        return '04' + pk.publicKey().toString().hex().upper()
+    #if fastecdsa:
+    key = keys.get_public_key(int('0x' + private_key, 0), curve.secp256k1)
+    return '04' + (hex(key.x)[2:] + hex(key.y)[2:]).zfill(128)
+    #else:
+    #    pk = PrivateKey().fromString(bytes.fromhex(private_key))
+    #    return '04' + pk.publicKey().toString().hex().upper()
 
 def public_key_to_address(public_key):
     output = []
@@ -59,25 +59,47 @@ def private_key_to_wif(private_key):
         else: break
     return chars[0] * pad + result
 
-def main(database, args):
+def main(database, cpuid, args):
     while True:
-        private_key = generate_private_key()
-        public_key = private_key_to_public_key(private_key, args['fastecdsa']) 
-        address = public_key_to_address(public_key)
+        time_begin = time.time() 
+        # Detailly perf the program. Usually the private_key_to_public_key function takes 99% of time. 
+        # It is really out of my expectation because I thought the address checking will take the big part. 
+        #a = 0
+        #b = 0
+        #c = 0
+        #d = 0
+        #e = 0
+        for i in range(10000):
+            #a += time.time()
+            private_key = generate_private_key()
+            #b += time.time()
+            public_key = private_key_to_public_key(private_key, args['fastecdsa']) 
+            #c += time.time()
+            address = public_key_to_address(public_key)
+            #d += time.time() 
 
-        if args['verbose']:
-            print(address)
-        
-        if address[-args['substring']:] in database:
-            for filename in os.listdir(DATABASE):
-                with open(DATABASE + filename) as file:
-                    if address in file.read():
-                        with open('plutus.txt', 'a') as plutus:
-                            plutus.write('hex private key: ' + str(private_key) + '\n' +
-                                         'WIF private key: ' + str(private_key_to_wif(private_key)) + '\n'
-                                         'public key: ' + str(public_key) + '\n' +
-                                         'uncompressed address: ' + str(address) + '\n\n')
-                        break
+            tail = address[-args['substring']:]
+            #head = address[:args['substring']]
+            rest = address[:-args['substring']]
+            if tail in database.keys(): 
+                if rest in database[tail]: 
+                    print("Found! {}".format(address))
+                    with open('plutus.txt', 'a') as plutus:
+                        plutus.write('hex private key: ' + str(private_key) + '\n' +
+                                     'WIF private key: ' + str(private_key_to_wif(private_key)) + '\n'
+                                     'public key: ' + str(public_key) + '\n' +
+                                     'uncompressed address: ' + str(address) + '\n\n')
+            #e += time.time()
+        #delta1 = (b - a) / 10000
+        #delta2 = (c - b) / 10000
+        #delta3 = (d - c) / 10000
+        #delta4 = (e - d) / 10000
+
+        time_end = time.time()
+        delta_time = time_end - time_begin
+        #print("{}:\t{} A/s\t{}\t{}\t{}\t{}".format(cpuid, round(10000 / delta_time, 2), delta1, delta2, delta3, delta4))
+        print("{}:\t{} A/s".format(cpuid, round(10000 / delta_time, 2)))
+
 
 def print_help():
     print('''Plutus homepage: https://github.com/Isaacdelly/Plutus
@@ -91,28 +113,19 @@ execute 'python3 plutus.py time', the output will be the time it takes to brutef
 Quick start: run command 'python3 plutus.py'
 
 By default this program runs with parameters:
-python3 plutus.py verbose=0 substring=8
+python3 plutus.py substring=10
 
-verbose: must be 0 or 1. If 1, then every bitcoin address that gets bruteforced will be printed to the terminal. This has the potential to slow the program down. An input of 0 will not print anything to the terminal and the bruteforcing will work silently. By default verbose is 0.
-
-substring: to make the program memory efficient, the entire bitcoin address is not loaded from the database. Only the last <substring> characters are loaded. This significantly reduces the amount of RAM required to run the program. if you still get memory errors then try making this number smaller, by default it is set to 8. This opens us up to getting false positives (empty addresses mistaken as funded) with a probability of 1/(16^<substring>), however it does NOT leave us vulnerable to false negatives (funded addresses being mistaken as empty) so this is an acceptable compromise.
+substring: when address was generated, the program will first look at the tail with certain length of it, the length was determined by this parameter. The length was set to 10 by default, the improvement of performance by changing this parameter wasn't detailed studied yet. This parameter must be smaller than 27, because the length of a shortest BTC address 
+was 26, and bigger than 0, otherwize no addresses will pass the first check. 
 
 cpu_count: number of cores to run concurrently. More cores = more resource usage but faster bruteforcing. Omit this parameter to run with the maximum number of cores''')
     sys.exit(0)
 
-def timer(args):
-    start = time.time()
-    private_key = generate_private_key()
-    public_key = private_key_to_public_key(private_key, args['fastecdsa'])
-    address = public_key_to_address(public_key)
-    end = time.time()
-    print(str(end - start))
-    sys.exit(0)
 
-if __name__ == '__main__':
+def start(): 
     args = {
         'verbose': 0,
-        'substring': 8,
+        'substring': 10,
         'fastecdsa': platform.system() in ['Linux', 'Darwin'],
         'cpu_count': multiprocessing.cpu_count(),
     }
@@ -139,7 +152,7 @@ if __name__ == '__main__':
                 sys.exit(-1)
         elif command == 'substring':
             substring = int(arg.split('=')[1])
-            if substring > 0 and substring < 27:
+            if substring > 0 and substring < 30:
                 args['substring'] = substring
             else:
                 print('invalid input. substring must be greater than 0 and less than 27')
@@ -149,17 +162,33 @@ if __name__ == '__main__':
             sys.exit(-1)
     
     print('reading database files...')
-    database = set()
-    for filename in os.listdir(DATABASE):
+    database = {}
+    database_filenames = os.listdir(DATABASE)
+    for file_index in range(len(database_filenames)):
+        filename = database_filenames[file_index]
+        print("{}/{}\t{}".format(file_index + 1, len(database_filenames), filename))
         with open(DATABASE + filename) as file:
             for address in file:
                 address = address.strip()
-                if address.startswith('1'):
-                    database.add(address[-args['substring']:])
+                #if address.startswith('1'):
+                tail = address[-args['substring']:]
+                #head = address[:args['substring']]
+                # Only storing the rest part of an address to save memory... althought pretty unnecessary. 
+                rest = address[:-args['substring']]
+                #database.add(tail)
+                if tail in database.keys(): 
+                    database[tail].add(rest) 
+                else: 
+                    database[tail] = set({rest})
+
     print('DONE')
 
-    print('database size: ' + str(len(database)))
+    print('database size: ' + str(len(database.keys())))
     print('processes spawned: ' + str(args['cpu_count']))
     
     for cpu in range(args['cpu_count']):
-        multiprocessing.Process(target = main, args = (database, args)).start()
+        multiprocessing.Process(target = main, args = (database, cpu, args)).start()
+
+# Convenient to be cythonize
+if __name__ == '__main__':
+    start() 
