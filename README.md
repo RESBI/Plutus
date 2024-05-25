@@ -104,13 +104,20 @@ If a wallet with a balance is found, then all necessary information about the wa
 >public key: 04393B30BC950F358326062FF28D194A5B28751C1FF2562C02CA4DFB2A864DE63280CC140D0D540EA1A5711D1E519C842684F42445C41CB501B7EA00361699C320<br/>
 >uncompressed address: 1Kz2CTvjzkZ3p2BQb5x5DX6GEoHX2jFS45<br/>
 
+# Accept Donation 
+
+| Coin                 | Address                                                                                          |
+| :------------------: | :----------------------------------------------------------------------------------------------: |
+| XMR                  | 8971Aa7Au2b1bBnEwsUR6mbWy5ZxsFA57dq51mxtJxPKAEuLfm1ByutSDrKMPh2iiCYh6xTqpQ5f79SZ2cG2w7oF33hDEui  |
+| BTC/BCH (Main chain) | 18MfJ8JHwRKzaMpkqXrzUQsSer9oiq3oC3                                                               | 
+
 # Recent Improvements & TODO
 
 <a href="https://github.com/RESBI/Plutus/issues">Create an issue</a> so I can add more stuff to improve
 
 ## Update the database
 
-We could found the latest addresses here https://github.com/Pymmdrza/Rich-Address-Wallet/
+We could found the latest addresses here https://github.com/Pymmdrza/Rich-Address-Wallet/ but with a different format. 
 
 ## Improve the performance 
 
