@@ -8,11 +8,11 @@ A Bitcoin wallet collider that brute forces random wallet addresses
 
 Removed supportance to Windows. You could recover it by modifying the code 
 
-https://github.com/RESBI/Plutus/blob/57bcb63b2dd1bae0c13de51e31cea415b64039b5/plutus.py#L20C1-L26C63
+https://github.com/RESBI/Plutus/blob/57bcb63b2dd1bae0c13de51e31cea415b64039b5/plutus.py#L20-L26
 
 ## Display cracking rate 
 
-While running, it prints 'm: N A/s' to the terminal, where 'm' is the worker's ID and 'N A/s' stands for N addresses was checked in one second average. 
+While running, it prints `CPUID: ADDRESSRATE A/s` to the terminal, where `CPUID` is the worker's ID and `ADDRESSRATE A/s` stands for # of addresses was checked in one second on average. 
 
 ## Huge memory required 
 
@@ -70,9 +70,9 @@ This program also utilizes multiprocessing through the `multiprocessing.Process(
 | CPU Name     | # of workers | A/s of 1 worker | Total A/s | 
 | :----------: | :----------: | :-------------: | :-------: |
 | 2x E5-2696v3 | 72           | 300             | 21600     |
-| ------------ | ------------ | --------------- | --------- |
 | R5-5600G     | 12           | 750             | 9000      |
 
+Welcome to upload your performance data in the issue. 
 
 # Database FAQ
 
@@ -85,20 +85,13 @@ This program has optional parameters to customize how it runs:
 __help__: `python3 plutus.py help` <br />
 Prints a short explanation of the parameters and how they work
 
-__time__: `python3 plutus.py time` <br />
-Brute forces a single address and takes a timestamp of how long it took - used for speed testing purposes
-
-__verbose__: 0 or 1 <br />
-`python3 plutus.py verbose=1`: When set to 1, then every bitcoin address that gets bruteforced will be printed to the terminal. This has the potential to slow the program down
-
-`python3 plutus.py verbose=0`: When set to 0, the program will not print anything to the terminal and the bruteforcing will work silently. By default verbose is set to 0
-
-__substring__: `python3 plutus.py substring=8`:
-To make the program memory efficient, the entire bitcoin address is not loaded from the database. Only the last <__substring__> characters are loaded. This significantly reduces the amount of RAM required to run the program. if you still get memory errors then try making this number smaller, by default it is set to 8. This opens us up to getting false positives (empty addresses mistaken as funded) with a probability of 1/(16^<__substring__>), however it does NOT leave us vulnerable to false negatives (funded addresses being mistaken as empty) so this is an acceptable compromise.
+__substring__: `python3 plutus.py substring=10`:
+When address was generated, the program will first look at the tail with certain length of it, the length was determined by this parameter. The length was set to 10 by default, the improvement of performance by changing this parameter wasn't detailed studied yet. This parameter must be smaller than 27, because the length of a shortest BTC address 
+was 26, and bigger than 0, otherwize no addresses will pass the first check. 
 
 __cpu_count__: `python3 plutus.py cpu_count=1`: number of cores to run concurrently. More cores = more resource usage but faster bruteforcing. Omit this parameter to run with the maximum number of cores
 
-By default the program runs using `python3 plutus.py verbose=0 substring=8` if nothing is passed.
+By default the program runs using `python3 plutus.py substring=10` if nothing is passed.
   
 # Expected Output
 
