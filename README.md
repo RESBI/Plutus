@@ -12,11 +12,7 @@ https://github.com/RESBI/Plutus/blob/57bcb63b2dd1bae0c13de51e31cea415b64039b5/pl
 
 ## Display cracking rate 
 
-While running, it prints
-'''Shell
-m: N A/s
-'''
-to the terminal, where 'm' is the worker's ID and 'N A/s' stands for N addresses was checked in one second average. 
+While running, it prints 'm: N A/s' to the terminal, where 'm' is the worker's ID and 'N A/s' stands for N addresses was checked in one second average. 
 
 ## Huge memory required 
 
