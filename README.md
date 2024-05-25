@@ -2,13 +2,34 @@
 
 A Bitcoin wallet collider that brute forces random wallet addresses
 
+# Deviation From The Original Repo
+
+## Removed some unused codes 
+
+Removed supportance to Windows. You could recover it by modifying the code 
+
+https://github.com/RESBI/Plutus/blob/57bcb63b2dd1bae0c13de51e31cea415b64039b5/plutus.py#L20C1-L26C63
+
+## Display cracking rate 
+
+While running, it prints
+'''Shell
+m: N A/s
+'''
+to the terminal, where 'm' is the worker's ID and 'N A/s' stands for N addresses was checked in one second average. 
+
+## Huge memory required 
+
+To use the original database, you need more than 20 GiB of RAM. 
+
 # Like This Project? Give It A Star
 
-[![](https://img.shields.io/github/stars/Isaacdelly/Plutus.svg)](https://github.com/Isaacdelly/Plutus)
+[![Original Repo](https://img.shields.io/github/stars/Isaacdelly/Plutus.svg)](https://github.com/Isaacdelly/Plutus)
+[![This Repo](https://img.shields.io/github/stars/RESBI/Plutus.svg)](https://github.com/RESBI/Plutus)
 
 # Dependencies
 
-<a href="https://www.python.org/downloads/">Python 3.9</a> or higher
+<a href="https://www.python.org/downloads/">Python 3.8</a> or higher
 
 Python modules listed in the <a href="/requirements.txt">requirements.txt<a/>
 
@@ -50,9 +71,12 @@ This program also utilizes multiprocessing through the `multiprocessing.Process(
 
 # Efficiency
 
-It takes `0.002` seconds for this progam to brute force a __single__ Bitcoin address. 
+| CPU Name     | # of workers | A/s of 1 worker | Total A/s | 
+| :----------: | :----------: | :-------------: | :-------: |
+| 2x E5-2696v3 | 72           | 300             | 21600     |
+| ------------ | ------------ | --------------- | --------- |
+| R5-5600G     | 12           | 750             | 9000      |
 
-However, through `multiprocessing.Process()` a concurrent process is created for every CPU your computer has. So this program can brute force a single address at a speed of `0.002 ÷ cpu_count()` seconds.
 
 # Database FAQ
 
@@ -91,4 +115,20 @@ If a wallet with a balance is found, then all necessary information about the wa
 
 # Recent Improvements & TODO
 
-<a href="https://github.com/Isaacdelly/Plutus/issues">Create an issue</a> so I can add more stuff to improve
+<a href="https://github.com/RESBI/Plutus/issues">Create an issue</a> so I can add more stuff to improve
+
+## Update the database
+
+We could found the latest addresses here https://github.com/Pymmdrza/Rich-Address-Wallet/
+
+## Improve the performance 
+
+Really hard to. 
+
+## Change the searching algorithm 
+
+Maybe there's a better way to check the address? 
+
+## Port to Xeon Phi 
+
+Hard to, since slow cores and small memory. 
